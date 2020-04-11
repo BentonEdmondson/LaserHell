@@ -1,306 +1,317 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel='icon' type='image/x-icon' href='favicon.ico'/>
-    <title>Laser Hell</title>
-    <style>
-      * {padding: 0; margin: 0; }
-      canvas { background: #000000; display: block; margin: 0 auto; }
-    </style>
-  </head>
-  <body>
-  <canvas id="myCanvas" ></canvas>
+
+<head>
+  <meta charset="utf-8">
+  <link rel='icon' type='image/x-icon' href='favicon.ico' />
+  <title>LaserHell</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    canvas {
+      background: #000000;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="myCanvas"></canvas>
   <script>
-// initialization
-var canvas = document.getElementById("myCanvas");
-canvas.width = window.innerWidth; // fit canvas to screen
-canvas.height = window.innerHeight;
+    // initialization
+    var canvas = document.getElementById("myCanvas");
+    canvas.width = window.innerWidth; // fit canvas to screen
+    canvas.height = window.innerHeight;
     //fit canvas to screen
-var ctx = canvas.getContext("2d");
-var gameStarted = true;
-var r = 15; // ball radius
-var x = canvas.width/2; //ball x coordinate
-var y = canvas.height/2; // ball y coordinate
-var rightPressed = false;
-var leftPressed = false;
-var upPressed = false;
-var downPressed = false;
-var dx = 0; // ball speed
-var dy = 0; // ball speed
-var accSpeed = 0.1; // ball accSpeed
-var bounciness = 1/10;
-var laserSpeed = 4;
-var lw = 25;
-var lh = 1.5;
-var lasers = [];
-var lpi = 1;
-var laserInterval = 0.1;
-var lic = 0.0005; // laser interval change
-var licFrequency = 0.5
-var minimumLaserInterval = 0.001;
-var time = 0;
-var ballHealth = 100;
-var explosionRadius = 0;
-var explosionVisible = false;
-var ex = undefined;
-var ey = undefined;
+    var ctx = canvas.getContext("2d");
+    var gameStarted = true;
+    var r = 15; // ball radius
+    var x = canvas.width / 2; //ball x coordinate
+    var y = canvas.height / 2; // ball y coordinate
+    var rightPressed = false;
+    var leftPressed = false;
+    var upPressed = false;
+    var downPressed = false;
+    var dx = 0; // ball speed
+    var dy = 0; // ball speed
+    var accSpeed = 0.1; // ball accSpeed
+    var bounciness = 1 / 10;
+    var laserSpeed = 4;
+    var lw = 25;
+    var lh = 1.5;
+    var lasers = [];
+    var lpi = 1;
+    var laserInterval = 0.1;
+    var lic = 0.0005; // laser interval change
+    var licFrequency = 0.5
+    var minimumLaserInterval = 0.001;
+    var time = 0;
+    var ballHealth = 100;
+    var explosionRadius = 0;
+    var explosionVisible = false;
+    var ex = undefined;
+    var ey = undefined;
 
-function fitScreen() {
-  if(canvas.width !== window.innerWidth ||
-     canvas.height !== window.innerHeight) {
-    canvas.width = window.innerWidth;
-    canvas.height !== window.innerHeight;
-  }
-}
+    function fitScreen() {
+      if (canvas.width !== window.innerWidth ||
+        canvas.height !== window.innerHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height !== window.innerHeight;
+      }
+    }
 
-// drawing functions
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBall();
-  setBorders();
-  if(explosionVisible) {
-    drawExplosion();
-  }
-  drawTime();
-  drawHealth();
-  window.requestAnimationFrame(draw);
-}
+    // drawing functions
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBall();
+      setBorders();
+      if (explosionVisible) {
+        drawExplosion();
+      }
+      drawTime();
+      drawHealth();
+      window.requestAnimationFrame(draw);
+    }
 
-function drawBall() {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI*2);
-  ctx.fillStyle = "#85D003";
-  ctx.fill();
-  ctx.closePath();
-}
-
-function drawExplosion() {
-  if(explosionVisible) {
-    ctx.beginPath();
-    ctx.arc(ex, ey, explosionRadius, 0, Math.PI*2);
-    ctx.fillStyle = "#4B088A";
-    ctx.fill();
-    ctx.closePath();
-    if(explosionRadius >= 5) {
+    function drawBall() {
       ctx.beginPath();
-      ctx.arc(ex, ey, explosionRadius - 5, 0, Math.PI*2);
-      ctx.fillStyle = "#ff0000";
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = "#85D003";
       ctx.fill();
       ctx.closePath();
     }
-    if(explosionRadius < 40) {
-      explosionRadius += 5;
-    } else {
-      explosionVisible = false;
-      explosionRadius = 0;
-      ex = undefined;
-      ey = undefined;
+
+    function drawExplosion() {
+      if (explosionVisible) {
+        ctx.beginPath();
+        ctx.arc(ex, ey, explosionRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#4B088A";
+        ctx.fill();
+        ctx.closePath();
+        if (explosionRadius >= 5) {
+          ctx.beginPath();
+          ctx.arc(ex, ey, explosionRadius - 5, 0, Math.PI * 2);
+          ctx.fillStyle = "#ff0000";
+          ctx.fill();
+          ctx.closePath();
+        }
+        if (explosionRadius < 40) {
+          explosionRadius += 5;
+        } else {
+          explosionVisible = false;
+          explosionRadius = 0;
+          ex = undefined;
+          ey = undefined;
+        }
+      }
     }
-  }
-}
 
-function drawTime() {
-  ctx.font = "22px Arial";
-  ctx.fillStyle = "#85D003";
-  ctx.fillText("Time: " + time, 5, 23);
-}
+    function drawTime() {
+      ctx.font = "22px Arial";
+      ctx.fillStyle = "#85D003";
+      ctx.fillText("Time: " + time, 5, 23);
+    }
 
-function drawHealth() {
-  ctx.font = "22px Arial";
-  ctx.fillStyle = "#85D003";
-  ctx.fillText("Health: %" + ballHealth, 5, canvas.height - 10);
-}
+    function drawHealth() {
+      ctx.font = "22px Arial";
+      ctx.fillStyle = "#85D003";
+      ctx.fillText("Health: %" + ballHealth, 5, canvas.height - 10);
+    }
 
-function increaseTime() {
-  time += 1;
-}
+    function increaseTime() {
+      time += 1;
+    }
 
-// damage
-function takeDamage(damage) {
-  if(ballHealth - damage > 0) {
-    ballHealth -= damage;
-  } else {
-    ballHealth = 0;
-    document.location.reload();
-  }
-}
+    // damage
+    function takeDamage(damage) {
+      if (ballHealth - damage > 0) {
+        ballHealth -= damage;
+      } else {
+        ballHealth = 0;
+        document.location.reload();
+      }
+    }
 
-// lasers
-function drawLaser(laserValue) {
-  var l = lasers[laserValue]
-  if(l.objectType = "laser") {
-     ctx.beginPath();
-     ctx.rect(l.x, l.y, lw, lh);
-     ctx.fillStyle = "#9e0b0d";
-     ctx.fill();
-     ctx.closePath();
-  } else if(l.objectType = "spaceRock") {
-     ctx.beginPath();
-     ctx.arc(x, y, r, 0, Math.PI*2);
-     ctx.fillStyle = "#85D003";
-     ctx.fill();
-     ctx.closePath();
-  }
-}
+    // lasers
+    function drawLaser(laserValue) {
+      var l = lasers[laserValue]
+      if (l.objectType = "laser") {
+        ctx.beginPath();
+        ctx.rect(l.x, l.y, lw, lh);
+        ctx.fillStyle = "#9e0b0d";
+        ctx.fill();
+        ctx.closePath();
+      } else if (l.objectType = "spaceRock") {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = "#85D003";
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
 
-function createLaserObject() {
-  for(var i = 0; i < lpi; i++) {
-    if(Math.random >= 0.8) {
-      if(Math.round(Math.random()) == 1) {
-        var laser = {
-          x: -lw,
-          y: Math.random() * canvas.height,
-          movingRight: true,
-          visible: true,
-          objectType: "laser",
+    function createLaserObject() {
+      for (var i = 0; i < lpi; i++) {
+        if (Math.random >= 0.8) {
+          if (Math.round(Math.random()) == 1) {
+            var laser = {
+              x: -lw,
+              y: Math.random() * canvas.height,
+              movingRight: true,
+              visible: true,
+              objectType: "laser",
+            }
+          } else {
+            var laser = {
+              x: canvas.width,
+              y: Math.random() * canvas.height,
+              movingRight: false,
+              visible: true,
+              objectType: "laser",
+            }
+          }
+        } else if (Math.round(Math.random()) == 1) {
+          var laser = {
+            x: -lw,
+            y: Math.random() * canvas.height,
+            movingRight: true,
+            visible: true,
+            objectType: "spaceRock",
+          }
+        } else {
+          var laser = {
+            x: canvas.width,
+            y: Math.random() * canvas.height,
+            movingRight: false,
+            visible: true,
+            objectType: "spaceRock",
+          }
+        }
+        lasers[i + lasers.length + 1] = laser;
+      }
+      setTimeout(createLaserObject, laserInterval * 1000)
+    }
+
+    function changeLI() {
+      if (laserInterval - lic >= minimumLaserInterval) {
+        laserInterval -= lic;
+      } else {
+        laserInterval = minimumLaserInterval;
+      }
+    }
+
+    // controls
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    function keyDownHandler(e) {
+      if (e.keyCode == 39 || e.keyCode == 68) {
+        rightPressed = true;
+      } else if (e.keyCode == 37 || e.keyCode == 65) {
+        leftPressed = true;
+      } else if (e.keyCode == 38 || e.keyCode == 87) {
+        upPressed = true;
+      } else if (e.keyCode == 40 || e.keyCode == 83) {
+        downPressed = true;
+      }
+    }
+
+    function keyUpHandler(e) {
+      if (e.keyCode == 39 || e.keyCode == 68) {
+        rightPressed = false;
+      } else if (e.keyCode == 37 || e.keyCode == 65) {
+        leftPressed = false;
+      } else if (e.keyCode == 38 || e.keyCode == 87) {
+        upPressed = false;
+      } else if (e.keyCode == 40 || e.keyCode == 83) {
+        downPressed = false;
+      }
+    }
+
+    function setBorders() {
+      x += dx;
+      y += dy;
+      if (y + dy - r > 0) {
+        if (upPressed) {
+          dy -= accSpeed;
         }
       } else {
-        var laser = {
-          x: canvas.width,
-          y: Math.random() * canvas.height,
-          movingRight: false,
-          visible: true,
-          objectType: "laser",
+        dy = -dy * bounciness;
+      }
+      if (y + dy + r < canvas.height) {
+        if (downPressed) {
+          dy += accSpeed;
         }
-      }
-    } else if(Math.round(Math.random()) == 1) {
-      var laser = {
-        x: -lw,
-        y: Math.random() * canvas.height,
-        movingRight: true,
-        visible: true,
-        objectType: "spaceRock",
-      }
-    } else {
-      var laser = {
-        x: canvas.width,
-        y: Math.random() * canvas.height,
-        movingRight: false,
-        visible: true,
-        objectType: "spaceRock",
-      }
-    }
-    lasers[i + lasers.length + 1] = laser;
-  }
-  setTimeout(createLaserObject, laserInterval * 1000)
-}
-
-function changeLI() {
-  if(laserInterval - lic >= minimumLaserInterval) {
-    laserInterval -= lic;
-  } else {
-    laserInterval = minimumLaserInterval;
-  }
-}
-
-// controls
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-
-function keyDownHandler(e) {
-  if(e.keyCode == 39 || e.keyCode == 68) {
-    rightPressed = true;
-  } else if(e.keyCode == 37 || e.keyCode == 65) {
-    leftPressed = true;
-  } else if(e.keyCode == 38 || e.keyCode == 87) {
-    upPressed = true;
-  } else if(e.keyCode == 40 || e.keyCode == 83) {
-    downPressed = true;
-  }
-}
-
-function keyUpHandler(e) {
-  if(e.keyCode == 39 || e.keyCode == 68) {
-    rightPressed = false;
-  } else if(e.keyCode == 37 || e.keyCode == 65) {
-    leftPressed = false;
-  } else if(e.keyCode == 38 || e.keyCode == 87) {
-    upPressed = false;
-  } else if(e.keyCode == 40 || e.keyCode == 83) {
-    downPressed = false;
-  }
-}
-
-function setBorders() {
-  x += dx;
-  y += dy;
-  if(y + dy - r > 0) {
-    if(upPressed) {
-      dy -= accSpeed;
-    }
-  } else {
-    dy = -dy * bounciness;
-  }
-  if(y + dy + r < canvas.height) {
-    if(downPressed) {
-      dy += accSpeed;
-    }
-  } else {
-    dy = -dy * bounciness;
-  }
-  if(x + dx - r > 0) {
-    if(leftPressed) {
-      dx -= accSpeed;
-    }
-  } else {
-    dx = -dx * bounciness;
-  }
-  if(x + dx + r < canvas.width) {
-    if(rightPressed) {
-      dx += accSpeed;
-    }
-  } else {
-    dx = -dx * bounciness;
-  }
-  for(var i = 0; i < lasers.length; i++) {
-    if(lasers[i] !== undefined) {
-      var l = lasers[i];
-      if(x + r > l.x && x - r < l.x + lw
-         && y + r > l.y && y - r < l.y + lh) {
-        takeDamage(Math.round(Math.random()*10)+5)
-        explosionVisible = true;
-        if(l.movingRight) {
-          ex = l.x + lw;
-          ey = l.y;
-        } else if(l.movingRight == false) {
-          ex = l.x;
-          ey = l.y;
-        }
-        lasers[i].visible = false;
-      }
-      if(lasers[i].movingRight) {
-        if(lasers[i].x < canvas.width) {
-          lasers[i].x += laserSpeed;
-          drawLaser(i);
-        }
-      } else if(lasers[i].movingRight == false) {
-        if(lasers[i].x > -lw) {
-          lasers[i].x += -laserSpeed;
-          drawLaser(i);
-        }
-      }
-      if(lasers[i].visible) {
-        drawLaser(i)
       } else {
-        lasers.splice(i, 1);
-        delete lasers[i];
+        dy = -dy * bounciness;
+      }
+      if (x + dx - r > 0) {
+        if (leftPressed) {
+          dx -= accSpeed;
+        }
+      } else {
+        dx = -dx * bounciness;
+      }
+      if (x + dx + r < canvas.width) {
+        if (rightPressed) {
+          dx += accSpeed;
+        }
+      } else {
+        dx = -dx * bounciness;
+      }
+      for (var i = 0; i < lasers.length; i++) {
+        if (lasers[i] !== undefined) {
+          var l = lasers[i];
+          if (x + r > l.x && x - r < l.x + lw
+            && y + r > l.y && y - r < l.y + lh) {
+            takeDamage(Math.round(Math.random() * 10) + 5)
+            explosionVisible = true;
+            if (l.movingRight) {
+              ex = l.x + lw;
+              ey = l.y;
+            } else if (l.movingRight == false) {
+              ex = l.x;
+              ey = l.y;
+            }
+            lasers[i].visible = false;
+          }
+          if (lasers[i].movingRight) {
+            if (lasers[i].x < canvas.width) {
+              lasers[i].x += laserSpeed;
+              drawLaser(i);
+            }
+          } else if (lasers[i].movingRight == false) {
+            if (lasers[i].x > -lw) {
+              lasers[i].x += -laserSpeed;
+              drawLaser(i);
+            }
+          }
+          if (lasers[i].visible) {
+            drawLaser(i)
+          } else {
+            lasers.splice(i, 1);
+            delete lasers[i];
+          }
+        }
       }
     }
-  }
-}
 
-// excecution
-function playGame() {
-  setInterval(changeLI, licFrequency * 1000);
-  createLaserObject(); // one per var laserInterval
-  setInterval(increaseTime, 1000);
-  draw();
-}
+    // excecution
+    function playGame() {
+      setInterval(changeLI, licFrequency * 1000);
+      createLaserObject(); // one per var laserInterval
+      setInterval(increaseTime, 1000);
+      draw();
+    }
 
-if(gameStarted) {
-  playGame();
-}
+    if (gameStarted) {
+      playGame();
+    }
   </script>
-  </body>
+</body>
+
 </html>
